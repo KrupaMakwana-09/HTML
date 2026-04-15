@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Quiz Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .quiz-container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 500px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+        }
+        .question-text {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            color: #444;
+        }
+        .options-group button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            font-size: 1em;
+            cursor: pointer;
+            text-align: left;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .options-group button:hover {
+            background-color: #e0e0e0;
+            border-color: #aaa;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+        .score-tracker {
+            font-weight: bold;
+            color: #007bff;
+        }
+        #result-screen {
+            text-align: center;
+        }
+        #result-screen h2 {
+            color: #28a745;
+        }
+        #result-screen button {
+            background-color: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        #result-screen button:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        <h1>HTML & CSS Quiz</h1>
+        
+        <div id="quiz-screen">
+            <div class="question-text" id="question-text">Question will appear here.</div>
+            
+            <div class="options-group" id="options-group">
+                
+            </div>
+
+            <div class="controls">
+                <span class="score-tracker" id="score-tracker">Score: 0</span>
+                <span class="score-tracker" id="progress-tracker">Question 1/5</span>
+            </div>
+        </div>
+
+        <div id="result-screen" style="display: none;">
+            <h2>Quiz Finished!</h2>
+            <p>Your final score is:</p>
+            <p style="font-size: 2em; font-weight: bold; color: #007bff;" id="final-score">0</p>
+            <p id="feedback-message"></p>
+            <button onclick="restartQuiz()">Start Over</button>
+        </div>
+
+    </div>
+    <script>
+        
+        const questions = [
+            {
+                question: "What does HTML stand for?",
+                options: ["Hypertext Markup Language", "Hyper Tool Multi Language", "Home Tool Markup Language", "Hyperlinks and Text Markup Language"],
+                answer: "Hypertext Markup Language"
+            },
+            {
+                question: "Which HTML tag is used to define an unordered list?",
+                options: ["<ol>", "<list>", "<li>", "<ul>"],
+                answer: "<ul>"
+            },
+            {
+                question: "What does CSS stand for?",
+                options: ["Creative Style Sheets", "Cascading Style Sheets", "Computer Style Sheets", "Colorful Style Sheets"],
+                answer: "Cascading Style Sheets"
+            },
+            {
+                question: "Which HTML attribute is used to define inline styles?",
+                options: ["class", "font", "style", "styles"],
+                answer: "style"
+            },
+            {
+                question: "Which CSS property controls the text size?",
+                options: ["font-size", "text-style", "font-weight", "text-size"],
+                answer: "font-size"
+            }
+        ];
+        
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const questionText = document.getElementById('question-text');
+        const optionsGroup = document.getElementById('options-group');
+        const scoreTracker = document.getElementById('score-tracker');
+        const progressTracker = document.getElementById('progress-tracker');
+        const finalScoreDisplay = document.getElementById('final-score');
+        const feedbackMessage = document.getElementById('feedback-message');
+
+        function loadQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                showResult();
+                return;
+            }
+
+            const currentQuestion = questions[currentQuestionIndex];
+            questionText.textContent = currentQuestion.question;
+            optionsGroup.innerHTML = ''; 
+
+            
+            currentQuestion.options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.setAttribute('data-answer', option);
+                button.onclick = handleAnswer; 
+                optionsGroup.appendChild(button);
+            });
+
+            
+            scoreTracker.textContent = `Score: ${score}`;
+            progressTracker.textContent = `Question ${currentQuestionIndex + 1}/${questions.length}`;
+        }
+
+        function handleAnswer(event) {
+            const selectedAnswer = event.target.getAttribute('data-answer');
+            const correctAnswer = questions[currentQuestionIndex].answer;
+
+            
+            if (selectedAnswer === correctAnswer) {
+                score++;
+            }
+
+            
+            currentQuestionIndex++;
+            loadQuestion();
+        }
+
+        function showResult() {
+            quizScreen.style.display = 'none';
+            resultScreen.style.display = 'block';
+
+            finalScoreDisplay.textContent = `${score} / ${questions.length}`;
+
+            
+            const percentage = (score / questions.length) * 100;
+            if (percentage === 100) {
+                feedbackMessage.textContent = "Perfect score! Excellent knowledge!";
+            } else if (percentage >= 60) {
+                feedbackMessage.textContent = "Great job! You passed the quiz.";
+            } else {
+                feedbackMessage.textContent = "Keep practicing! You can do better.";
+            }
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            quizScreen.style.display = 'block';
+            resultScreen.style.display = 'none';
+            loadQuestion();
+        }
+  
+        document.addEventListener('DOMContentLoaded', loadQuestion);
+    </script>
+</body>
+</html>
