@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar System Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: white;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+            animation: fadeInDown 1s ease-out;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: pulse 2s infinite;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        @keyframes correctAnswer {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(-5px);
+            }
+            75% {
+                transform: translateX(5px);
+            }
+        }
+        
+        .quiz-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: slideInLeft 0.8s ease-out;
+            transition: all 0.3s ease;
+        }
+        
+        .quiz-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+        }
+        
+        .question-counter {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            opacity: 0.8;
+            animation: bounce 1s ease-out;
+        }
+        
+        .question {
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            line-height: 1.6;
+            text-align: center;
+            animation: fadeInDown 0.6s ease-out;
+            transition: all 0.3s ease;
+        }
+        
+        .question:hover {
+            transform: scale(1.02);
+            color: #87CEEB;
+        }
+        
+        .options {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .option {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            position: relative;
+            overflow: hidden;
+            animation: slideInLeft 0.5s ease-out;
+        }
+        
+        .option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .option:hover::before {
+            left: 100%;
+        }
+        
+        .option:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+        
+        .option.selected {
+            background: rgba(74, 144, 226, 0.6);
+            border-color: #4a90e2;
+            animation: bounce 0.6s ease-out;
+        }
+        
+        .option.correct {
+            background: rgba(76, 175, 80, 0.6);
+            border-color: #4caf50;
+            animation: correctAnswer 0.8s ease-out;
+        }
+        
+        .option.incorrect {
+            background: rgba(244, 67, 54, 0.6);
+            border-color: #f44336;
+            animation: shake 0.6s ease-out;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #4a90e2, #357abd);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            color: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn:disabled:hover {
+            transform: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .score {
+            font-size: 1.2rem;
+            font-weight: bold;
+            animation: bounce 0.5s ease-out;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50, #81c784);
+            border-radius: 4px;
+            transition: width 0.8s ease-out;
+            position: relative;
+        }
+        
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+        }
+        
+        @keyframes fall {
+            0% {
+                transform: translateY(-10px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .results {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .results h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #4caf50;
+        }
+        
+        .results .final-score {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+        }
+        
+        .results .message {
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .planet-emoji {
+            font-size: 2rem;
+            margin: 0 10px;
+        }
+        
+        .explanation-container {
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            animation: slideInUp 0.6s ease-out;
+            backdrop-filter: blur(5px);
+        }
+        
+        .explanation-icon {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 10px;
+            animation: bounce 1s ease-out;
+        }
+        
+        .explanation-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            text-align: center;
+            color: #E8F4FD;
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .start-screen {
+            text-align: center;
+            padding: 50px 30px;
+        }
+        
+        .start-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .welcome-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+        
+        .start-screen h2 {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            color: #87CEEB;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .start-description {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .quiz-features {
+            display: grid;
+            gap: 15px;
+            margin: 30px 0;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .feature {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            animation: slideInLeft 0.6s ease-out;
+        }
+        
+        .feature:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .feature:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        .feature:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .feature-icon {
+            font-size: 1.5rem;
+        }
+        
+        .start-btn {
+            font-size: 1.3rem;
+            padding: 15px 40px;
+            margin-top: 20px;
+            animation: pulse 2s infinite;
+        }
+        
+        .start-btn:hover {
+            animation: none;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .planet-info {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .current-planet {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #87CEEB;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: planetGlow 2s infinite alternate;
+        }
+        
+        @keyframes planetGlow {
+            0% {
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            }
+            100% {
+                text-shadow: 2px 2px 20px rgba(135, 206, 235, 0.6);
+            }
+        }
+        
+        .hint-section {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .hint-button {
+            background: linear-gradient(45deg, #ff9800, #f57c00);
+            border: none;
+            border-radius: 20px;
+            padding: 10px 25px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+            animation: wiggle 2s infinite;
+        }
+        
+        .hint-button:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
+            animation: none;
+        }
+        
+        .hint-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            animation: none;
+        }
+        
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(2deg); }
+            75% { transform: rotate(-2deg); }
+        }
+        
+        .hint-container {
+            background: rgba(255, 193, 7, 0.15);
+            border: 2px solid rgba(255, 193, 7, 0.4);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            animation: slideInUp 0.6s ease-out;
+            backdrop-filter: blur(5px);
+        }
+        
+        .hint-icon {
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 8px;
+            animation: bounce 1s ease-out;
+        }
+        
+        .hint-text {
+            font-size: 1rem;
+            line-height: 1.5;
+            text-align: center;
+            color: #FFF3CD;
+            font-style: italic;
+        }
+        
+        .encouragement {
+            background: rgba(76, 175, 80, 0.15);
+            border: 2px solid rgba(76, 175, 80, 0.4);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+            animation: slideInUp 0.6s ease-out;
+            backdrop-filter: blur(5px);
+        }
+        
+        .encouragement-text {
+            font-size: 1.1rem;
+            color: #C8E6C9;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Cosmic Crystal Quest 💎</h1>
+            <p>Become a space explorer and collect magical crystals from distant planets!</p>
+        </div>
+        
+        <div id="start-container" class="quiz-container start-screen">
+            <div class="start-content">
+                <div class="welcome-icon">👨‍🚀</div>
+                <h2>Welcome, Space Explorer!</h2>
+                <p class="start-description">
+                    Your mission: Travel to different planets and answer cosmic riddles to collect magical crystals! 
+                    Each correct answer earns you a crystal and unlocks the next planet. Can you collect all 10 crystals?
+                </p>
+                <div class="quiz-features">
+                    <div class="feature">
+                        <span class="feature-icon">🪐</span>
+                        <span>Visit 10 Planets</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">💎</span>
+                        <span>Collect Magic Crystals</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🛸</span>
+                        <span>Space Travel Adventure</span>
+                    </div>
+                </div>
+                <button class="btn start-btn" onclick="startQuiz()">
+                    <span>🛸 Begin Mission</span>
+                </button>
+            </div>
+        </div>
+        
+        <div id="quiz-container" class="quiz-container hidden">
+            <div class="planet-info">
+                <div class="current-planet" id="current-planet">🪐 Planet Mercury</div>
+                <div class="question-counter">
+                    Planet <span id="current-question">1</span> of <span id="total-questions">10</span>
+                </div>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar" style="width: 10%"></div>
+            </div>
+            
+            <div class="question" id="question-text">
+                Loading question...
+            </div>
+            
+            <div class="options" id="options-container">
+                <!-- Options will be populated by JavaScript -->
+            </div>
+            
+            <div class="hint-section">
+                <button id="hint-btn" class="hint-button" onclick="showHint()">
+                    🔍 Need a Hint?
+                </button>
+                <div id="hint-container" class="hint-container hidden">
+                    <div class="hint-icon">💭</div>
+                    <div class="hint-text" id="hint-text"></div>
+                </div>
+            </div>
+            
+            <div id="explanation-container" class="explanation-container hidden">
+                <div class="explanation-icon">💡</div>
+                <div class="explanation-text" id="explanation-text"></div>
+            </div>
+            
+            <div class="controls">
+                <div class="score">
+                    💎 Crystals: <span id="score">0</span>/<span id="total-score">10</span>
+                </div>
+                <button id="next-btn" class="btn" onclick="nextQuestion()" disabled>🚀 Travel to Next Planet</button>
+            </div>
+        </div>
+        
+        <div id="results-container" class="quiz-container results hidden">
+            <h2>🎉 Mission Complete! 🎉</h2>
+            <div class="final-score">
+                💎 Crystals Collected: <span id="final-score">0</span>/10
+            </div>
+            <div class="message" id="result-message">
+                Congratulations, Space Explorer!
+            </div>
+            <div style="margin: 20px 0;">
+                <span class="planet-emoji">🛸</span>
+                <span class="planet-emoji">💎</span>
+                <span class="planet-emoji">🌟</span>
+                <span class="planet-emoji">👨‍🚀</span>
+            </div>
+            <button class="btn" onclick="restartQuiz()">🚀 New Mission</button>
+        </div>
+    </div>
+
+    <script>
+        const planetNames = ["🌑 Mercury", "☀️ Venus", "🌍 Earth", "🔴 Mars", "⚡ Jupiter", "🪐 Saturn", "💙 Uranus", "🌊 Neptune", "🌟 Asteroid Belt", "🌙 Moon"];
+        
+        const allQuestions = [
+            {
+                question: "Which planet is known as the 'Red Planet'?",
+                options: ["Venus", "Mars", "Jupiter", "Saturn"],
+                correct: 1,
+                hint: "Think about the color! This planet looks rusty and reddish from space. It's our neighbor planet! 🔴",
+                explanation: "Mars is called the 'Red Planet' because of iron oxide (rust) on its surface, which gives it a reddish appearance. This rusty dust covers much of the planet's surface!"
+            },
+            {
+                question: "How many planets are in our solar system?",
+                options: ["7", "8", "9", "10"],
+                correct: 1,
+                hint: "Remember: Pluto is no longer considered a full planet! Count from Mercury to Neptune. 🪐",
+                explanation: "There are 8 planets in our solar system: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, and Neptune. Pluto was reclassified as a 'dwarf planet' in 2006."
+            },
+            {
+                question: "Which is the largest planet in our solar system?",
+                options: ["Saturn", "Neptune", "Jupiter", "Uranus"],
+                correct: 2,
+                hint: "This giant planet is so big that all other planets could fit inside it! It's named after the king of Roman gods. ⚡",
+                explanation: "Jupiter is the largest planet! It's so big that all the other planets could fit inside it. It's a gas giant with a mass greater than all other planets combined."
+            },
+            {
+                question: "Which planet is closest to the Sun?",
+                options: ["Venus", "Mercury", "Earth", "Mars"],
+                correct: 1,
+                hint: "This tiny planet is named after the speedy Roman messenger god! It's the smallest planet too. 🏃‍♂️",
+                explanation: "Mercury is the closest planet to the Sun, orbiting at an average distance of about 36 million miles. Despite being closest, Venus is actually hotter due to its thick atmosphere!"
+            },
+            {
+                question: "What is the name of Earth's natural satellite?",
+                options: ["Luna", "The Moon", "Both A and B", "Satellite-1"],
+                correct: 2,
+                hint: "We see it in the night sky! 'Luna' is just the fancy Latin name for what we call it every day. 🌙",
+                explanation: "Earth's natural satellite is called both 'The Moon' and 'Luna' (Latin for moon). It's the fifth largest moon in the solar system and affects our tides!"
+            },
+            {
+                question: "Which planet has the most moons?",
+                options: ["Jupiter", "Saturn", "Uranus", "Neptune"],
+                correct: 1,
+                hint: "The biggest planet has the most moons! It has over 90 satellites orbiting around it like a mini solar system. 🌕",
+                explanation: "Jupiter has the most moons with over 90 confirmed satellites! Its four largest moons (Io, Europa, Ganymede, and Callisto) were discovered by Galileo in 1610."
+            },
+            {
+                question: "How long does it take Earth to orbit the Sun?",
+                options: ["365 days", "366 days", "364 days", "360 days"],
+                correct: 0,
+                hint: "Think about how many days are in a regular year! That's how long it takes Earth to go around the Sun once. 📅",
+                explanation: "Earth takes approximately 365.25 days to orbit the Sun. The extra 0.25 day is why we have leap years every 4 years to keep our calendar aligned!"
+            },
+            {
+                question: "Which planet is known for its beautiful rings?",
+                options: ["Jupiter", "Uranus", "Saturn", "Neptune"],
+                correct: 2,
+                hint: "This planet looks like it's wearing a beautiful hula hoop! Its rings are made of ice and rock pieces. 💍",
+                explanation: "Saturn is famous for its spectacular ring system! While other gas giants have rings, Saturn's are the most visible and beautiful, made of ice particles and rocky debris."
+            },
+            {
+                question: "What is the hottest planet in our solar system?",
+                options: ["Mercury", "Venus", "Mars", "Earth"],
+                correct: 1,
+                hint: "It's not the closest to the Sun! This planet has thick clouds that trap heat like a greenhouse. It's named after the goddess of love. 💕",
+                explanation: "Venus is the hottest planet with surface temperatures around 900°F (480°C)! Its thick atmosphere of carbon dioxide creates a runaway greenhouse effect, making it hotter than Mercury."
+            },
+            {
+                question: "Which planet rotates on its side?",
+                options: ["Neptune", "Saturn", "Jupiter", "Uranus"],
+                correct: 3,
+                hint: "This planet got knocked over! It spins like a rolling ball instead of spinning like a top. It's the 7th planet from the Sun. ⚾",
+                explanation: "Uranus rotates on its side with an axial tilt of about 98 degrees! Scientists think it was knocked over by a massive collision billions of years ago."
+            },
+            {
+                question: "What is the smallest planet in our solar system?",
+                options: ["Mercury", "Mars", "Venus", "Pluto"],
+                correct: 0,
+                hint: "This tiny planet is closest to the Sun and moves super fast! Remember, Pluto isn't a full planet anymore. 🏃‍♂️",
+                explanation: "Mercury is the smallest planet in our solar system, only slightly larger than Earth's Moon! Pluto is no longer classified as a planet but as a dwarf planet."
+            },
+            {
+                question: "Which planet has a day longer than its year?",
+                options: ["Mercury", "Venus", "Mars", "Jupiter"],
+                correct: 1,
+                hint: "This planet spins very, very slowly! It takes longer for one day than for it to go around the Sun once. It's the hottest planet! 🐌",
+                explanation: "Venus has a day (243 Earth days) longer than its year (225 Earth days)! It also rotates backwards compared to most other planets."
+            },
+            {
+                question: "What is the Great Red Spot?",
+                options: ["A crater on Mars", "A storm on Jupiter", "A moon of Saturn", "A ring around Uranus"],
+                correct: 1,
+                hint: "It's a giant hurricane that's been spinning for hundreds of years! It's bigger than our whole Earth and it's on the biggest planet. 🌪️",
+                explanation: "The Great Red Spot is a giant storm on Jupiter that has been raging for at least 400 years! It's larger than Earth and has winds up to 400 mph."
+            },
+            {
+                question: "Which planet is called the 'Morning Star' or 'Evening Star'?",
+                options: ["Mercury", "Venus", "Mars", "Jupiter"],
+                correct: 1,
+                hint: "This bright 'star' isn't really a star at all! It's the planet that shines brightest in our sky and is named after the goddess of love. ⭐",
+                explanation: "Venus is called the 'Morning Star' or 'Evening Star' because it's often the brightest object in the sky after the Sun and Moon. It's not actually a star, but shines brightly due to its reflective clouds!"
+            },
+            {
+                question: "How many Earth days does it take for the Moon to orbit Earth?",
+                options: ["28 days", "30 days", "27.3 days", "25 days"],
+                correct: 2,
+                hint: "It's close to a month, but not exactly! The Moon takes a bit less than 28 days to go all the way around Earth. 🌙",
+                explanation: "The Moon takes about 27.3 days to orbit Earth. This is called a sidereal month. The lunar phases we see (new moon to new moon) take about 29.5 days due to Earth's orbit around the Sun."
+            },
+            {
+                question: "Which planet has the strongest winds in the solar system?",
+                options: ["Jupiter", "Saturn", "Uranus", "Neptune"],
+                correct: 3,
+                hint: "This blue planet is the farthest from the Sun, but somehow has the fastest winds! It's named after the Roman god of the sea. 💨",
+                explanation: "Neptune has the strongest winds in the solar system, reaching speeds up to 1,200 mph (2,000 km/h)! This is puzzling since it receives very little energy from the distant Sun."
+            },
+            {
+                question: "What causes the seasons on Earth?",
+                options: ["Distance from Sun", "Earth's tilt", "Solar flares", "Moon's gravity"],
+                correct: 1,
+                hint: "It's not about how far we are from the Sun! Earth is like a spinning top that's leaning to one side. ↗️",
+                explanation: "Earth's seasons are caused by its 23.5-degree axial tilt, not its distance from the Sun! When your hemisphere tilts toward the Sun, you get summer; when it tilts away, you get winter."
+            },
+            {
+                question: "Which planet would float if placed in water?",
+                options: ["Jupiter", "Saturn", "Uranus", "Neptune"],
+                correct: 1,
+                hint: "This planet with beautiful rings is made mostly of gas! It's so light and fluffy that it would bob like a cork. 🏊‍♂️",
+                explanation: "Saturn would float in water because its density (0.69 g/cm³) is less than water (1 g/cm³)! This is because it's made mostly of hydrogen and helium gas."
+            },
+            {
+                question: "What is the asteroid belt located between?",
+                options: ["Earth and Mars", "Mars and Jupiter", "Jupiter and Saturn", "Saturn and Uranus"],
+                correct: 1,
+                hint: "It's between the red planet and the giant planet! Think of it as a rocky highway between the small planets and big planets. 🪨",
+                explanation: "The asteroid belt is located between Mars and Jupiter. It contains thousands of rocky objects that never formed into a planet, likely due to Jupiter's strong gravitational influence."
+            },
+            {
+                question: "Which moon is the largest in our solar system?",
+                options: ["Europa", "Titan", "Ganymede", "Callisto"],
+                correct: 2,
+                hint: "This moon belongs to Jupiter, the biggest planet! It's even bigger than the planet Mercury. It starts with 'G'. 🌕",
+                explanation: "Ganymede, one of Jupiter's moons, is the largest moon in our solar system! It's even larger than the planet Mercury and has its own magnetic field."
+            }
+        ];
+
+        let questions = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedOption = null;
+
+        // Function to shuffle array and select random questions
+        function getRandomQuestions() {
+            const shuffled = [...allQuestions].sort(() => Math.random() - 0.5);
+            return shuffled.slice(0, 10);
+        }
+
+        function loadQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('current-question').textContent = currentQuestion + 1;
+            document.getElementById('total-questions').textContent = questions.length;
+            document.getElementById('current-planet').textContent = planetNames[currentQuestion];
+            document.getElementById('question-text').textContent = `🔮 Crystal Riddle: ${question.question}`;
+            
+            // Update progress bar
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = progress + '%';
+            
+            // Hide explanation and hint for new question
+            document.getElementById('explanation-container').classList.add('hidden');
+            document.getElementById('hint-container').classList.add('hidden');
+            
+            // Reset hint button
+            const hintBtn = document.getElementById('hint-btn');
+            hintBtn.disabled = false;
+            hintBtn.textContent = '🔮 Use Crystal Scanner';
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.textContent = option;
+                optionElement.onclick = () => selectOption(index);
+                optionElement.style.animationDelay = (index * 0.1) + 's';
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            selectedOption = null;
+            document.getElementById('next-btn').disabled = true;
+        }
+
+        function showHint() {
+            const question = questions[currentQuestion];
+            const hintContainer = document.getElementById('hint-container');
+            const hintText = document.getElementById('hint-text');
+            const hintBtn = document.getElementById('hint-btn');
+            
+            hintText.textContent = question.hint;
+            hintContainer.classList.remove('hidden');
+            hintBtn.disabled = true;
+            hintBtn.textContent = '🔮 Scanner Used!';
+        }
+
+        function selectOption(index) {
+            // Remove previous selections
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected', 'correct', 'incorrect');
+            });
+            
+            selectedOption = index;
+            const options = document.querySelectorAll('.option');
+            const question = questions[currentQuestion];
+            
+            // Show correct answer
+            options[question.correct].classList.add('correct');
+            
+            // Show explanation with correct answer highlighted
+            const explanationContainer = document.getElementById('explanation-container');
+            const explanationText = document.getElementById('explanation-text');
+            
+            let explanationContent = '';
+            if (index !== question.correct) {
+                explanationContent = `❌ No crystal found! The correct answer is: "${question.options[question.correct]}"\n\n💎 Crystal Knowledge: ${question.explanation}`;
+            } else {
+                explanationContent = `💎 Crystal Collected! ${question.explanation}`;
+            }
+            
+            explanationText.textContent = explanationContent;
+            explanationContainer.classList.remove('hidden');
+            
+            // If wrong answer selected, show it as incorrect
+            if (index !== question.correct) {
+                options[index].classList.add('incorrect');
+                // Add shake effect to quiz container
+                document.getElementById('quiz-container').style.animation = 'shake 0.6s ease-out';
+                setTimeout(() => {
+                    document.getElementById('quiz-container').style.animation = '';
+                }, 600);
+            } else {
+                score++;
+                document.getElementById('score').textContent = score;
+                // Add celebration effect
+                createCelebrationEffect();
+                // Animate score update
+                document.getElementById('score').style.animation = 'bounce 0.6s ease-out';
+                setTimeout(() => {
+                    document.getElementById('score').style.animation = '';
+                }, 600);
+                
+                // Show encouragement for correct answers
+                showEncouragement();
+            }
+            
+            // Disable all options and hint button after selection
+            options.forEach(opt => {
+                opt.style.pointerEvents = 'none';
+            });
+            document.getElementById('hint-btn').disabled = true;
+            
+            document.getElementById('next-btn').disabled = false;
+        }
+        
+        function showEncouragement() {
+            const encouragements = [
+                "💎 Crystal secured! You're an amazing explorer!",
+                "🚀 Fantastic! Another crystal for your collection!",
+                "⭐ Brilliant! Your crystal bag is growing!",
+                "🌌 Excellent work, Space Explorer!",
+                "🪐 Outstanding! You've mastered this planet!"
+            ];
+            
+            const randomEncouragement = encouragements[Math.floor(Math.random() * encouragements.length)];
+            
+            // Create temporary encouragement element
+            const encouragementDiv = document.createElement('div');
+            encouragementDiv.className = 'encouragement';
+            encouragementDiv.innerHTML = `<div class="encouragement-text">${randomEncouragement}</div>`;
+            
+            // Insert after hint section
+            const hintSection = document.querySelector('.hint-section');
+            hintSection.parentNode.insertBefore(encouragementDiv, hintSection.nextSibling);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                encouragementDiv.remove();
+            }, 3000);
+        }
+        
+        function createCelebrationEffect() {
+            const colors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7'];
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.style.position = 'fixed';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.top = '-10px';
+                    confetti.style.width = '10px';
+                    confetti.style.height = '10px';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.borderRadius = '50%';
+                    confetti.style.pointerEvents = 'none';
+                    confetti.style.zIndex = '1000';
+                    confetti.style.animation = 'fall 3s linear forwards';
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 3000);
+                }, i * 100);
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+                // Re-enable option clicking
+                setTimeout(() => {
+                    document.querySelectorAll('.option').forEach(opt => {
+                        opt.style.pointerEvents = 'auto';
+                    });
+                }, 100);
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('results-container').classList.remove('hidden');
+            document.getElementById('final-score').textContent = score;
+            
+            let message = '';
+            const percentage = (score / questions.length) * 100;
+            
+            if (percentage >= 90) {
+                message = "🏆 Master Explorer! You've collected almost all crystals! 🌟";
+            } else if (percentage >= 70) {
+                message = "🚀 Skilled Explorer! Great crystal collection! 💎";
+            } else if (percentage >= 50) {
+                message = "🌌 Space Cadet! Keep exploring for more crystals! ⭐";
+            } else {
+                message = "🔭 Rookie Explorer! Practice makes perfect! 🛸";
+            }
+            
+            document.getElementById('result-message').textContent = message;
+        }
+
+        function startQuiz() {
+            document.getElementById('start-container').classList.add('hidden');
+            document.getElementById('quiz-container').classList.remove('hidden');
+            
+            // Initialize quiz data
+            currentQuestion = 0;
+            score = 0;
+            selectedOption = null;
+            questions = getRandomQuestions();
+            
+            document.getElementById('score').textContent = '0';
+            loadQuestion();
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            selectedOption = null;
+            
+            // Get new random questions
+            questions = getRandomQuestions();
+            
+            document.getElementById('score').textContent = '0';
+            document.getElementById('results-container').classList.add('hidden');
+            document.getElementById('quiz-container').classList.remove('hidden');
+            
+            loadQuestion();
+        }
+
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const numStars = 50;
+            
+            for (let i = 0; i < numStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = Math.random() * 3 + 1 + 'px';
+                star.style.height = star.style.width;
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        function initializeQuiz() {
+            createStars();
+            // Don't load questions yet - wait for user to click start
+        }
+
+        // Initialize the quiz
+        initializeQuiz();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'984c85a82687c87d',t:'MTc1ODgyNDI4NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
